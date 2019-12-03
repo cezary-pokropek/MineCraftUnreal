@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Block.h"
 #include "MineCraftUnrealCharacter.generated.h"
 
 class UInputComponent;
@@ -47,6 +48,8 @@ class AMineCraftUnrealCharacter : public ACharacter
 
 public:
 	AMineCraftUnrealCharacter();
+
+	virtual void Tick(float DeltaTime) override;
 
 protected:
 	virtual void BeginPlay();
@@ -131,6 +134,17 @@ protected:
 	 * @returns true if touch controls were enabled.
 	 */
 	bool EnableTouchscreenMovement(UInputComponent* InputComponent);
+
+private:
+
+	/*Check if there is a block on front of the player*/
+	void CheckForBlocks();
+
+	/*Stores the block currently being looked at by the player*/
+	ABlock* CurrentBlock;
+
+	/*The characters reach*/
+	float Reach;
 
 public:
 	/** Returns Mesh1P subobject **/
