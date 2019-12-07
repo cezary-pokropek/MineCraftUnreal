@@ -137,14 +137,32 @@ protected:
 
 private:
 
+	/*True if player is breaking, false otherwise*/
+	bool bIsBreaking;
+
+	/*Called whenhitting a tool*/
+	void OnHit();
+	void EndHit();
+
+	/*Plays the mining animation*/
+	void PlayHitAnim();
+
 	/*Check if there is a block on front of the player*/
 	void CheckForBlocks();
 
 	/*Stores the block currently being looked at by the player*/
 	ABlock* CurrentBlock;
 
+	/*Called when we want to break a block*/
+	void BreakBlock();
+
 	/*The characters reach*/
 	float Reach;
+
+	/*Timer Handles*/
+	FTimerHandle BlockBreakingHandle;
+	FTimerHandle HitAnimHandle;
+
 
 public:
 	/** Returns Mesh1P subobject **/

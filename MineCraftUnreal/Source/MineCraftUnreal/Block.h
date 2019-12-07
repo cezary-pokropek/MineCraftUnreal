@@ -15,13 +15,31 @@ public:
 	// Sets default values for this actor's properties
 	ABlock();
 
-	/** Base shape collision */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Item | Collision")
+	/*Base shape collision*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Block | Collision")
 	class UBoxComponent* CollisionVolume;
 
-	/** Base Mesh Component */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Item | Mesh")
+	/*Base Mesh Component*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Block | Mesh")
 	class UStaticMeshComponent* SM_Block;
+
+	uint8 MinimumMaterial;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Block | Resistance")
+	float Resistance;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Block | BreakingStage")
+	float BreakingStage;
+
+	/*Called every time we want to break the block down further*/
+
+	void Break();
+
+	void ResetBlock();
+
+	/*Called once the block has hit the final breaking stage*/
+	void OnBroken(bool HasRequiredPickaxe);
+
 
 protected:
 	// Called when the game starts or when spawned

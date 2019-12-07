@@ -7,6 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/InputSettings.h"
+#include "Engine/World.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "MotionControllerComponent.h"
@@ -130,7 +131,13 @@ void AMineCraftUnrealCharacter::SetupPlayerInputComponent(class UInputComponent*
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AMineCraftUnrealCharacter::OnFire);
 
 	// Enable touchscreen input
-	EnableTouchscreenMovement(PlayerInputComponent);
+
+	if (EnableTouchscreenMovement(PlayerInputComponent) == false)
+	{
+		PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AMineCraftUnrealCharacter::OnHit);
+		PlayerInputComponent->BindAction("Interact", IE_Released, this, &AMineCraftUnrealCharacter::EndHit);
+
+	}
 
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AMineCraftUnrealCharacter::OnResetVR);
 
@@ -149,7 +156,6 @@ void AMineCraftUnrealCharacter::SetupPlayerInputComponent(class UInputComponent*
 
 void AMineCraftUnrealCharacter::OnFire()
 {
-
 	// try and play a firing animation if specified
 	if (FireAnimation != NULL)
 	{
@@ -275,6 +281,49 @@ bool AMineCraftUnrealCharacter::EnableTouchscreenMovement(class UInputComponent*
 	return false;
 }
 
+void AMineCraftUnrealCharacter::OnHit()
+{
+	PlayHitAnim();
+
+	if (CurrentBlock != nullptr)
+	{
+		bIsBreaking = true;
+
+		float TimeBetweenBreaks = ((CurrentBlock->Resistance) / 100.f) / 2;
+
+		GetWorld()->GetTimerManager().SetTimer(BlockBreakingHandle, this, &AMineCraftUnrealCharacter::BreakBlock, TimeBetweenBreaks, true);
+		GetWorld()->GetTimerManager().SetTimer(HitAnimHandle, this, &AMineCraftUnrealCharacter::PlayHitAnim, 0.4f, true);
+	}
+
+}
+
+void AMineCraftUnrealCharacter::EndHit()
+{
+	GetWorld()->GetTimerManager().ClearTimer(BlockBreakingHandle);
+	GetWorld()->GetTimerManager().ClearTimer(HitAnimHandle);
+
+	bIsBreaking = false;
+
+	if (CurrentBlock != nullptr)
+	{
+		CurrentBlock->ResetBlock();
+	}
+}
+
+void AMineCraftUnrealCharacter::PlayHitAnim()
+{
+	// try and play a firing animation if specified
+	if (FireAnimation != NULL)
+	{
+		// Get the animation object for the arms mesh
+		UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
+		if (AnimInstance != NULL)
+		{
+			AnimInstance->Montage_Play(FireAnimation, 1.f);
+		}
+	}
+}
+
 void AMineCraftUnrealCharacter::CheckForBlocks()
 {
 	FHitResult LineTraceHit;
@@ -300,4 +349,12 @@ void AMineCraftUnrealCharacter::CheckForBlocks()
 	}
 
 
+}
+
+void AMineCraftUnrealCharacter::BreakBlock()
+{
+	if (bIsBreaking && CurrentBlock != nullptr && !CurrentBlock->IsPendingKill())
+	{
+		CurrentBlock->Break();
+	}
 }
