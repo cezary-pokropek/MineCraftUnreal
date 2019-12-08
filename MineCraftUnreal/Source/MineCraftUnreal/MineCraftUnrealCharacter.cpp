@@ -43,15 +43,15 @@ AMineCraftUnrealCharacter::AMineCraftUnrealCharacter()
 	Mesh1P->RelativeLocation = FVector(-0.5f, -4.4f, -155.7f);
 
 	// Create a gun mesh component
-	FP_PickAxe = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
-	FP_PickAxe->SetOnlyOwnerSee(true);			// only the owning player will see this mesh
-	FP_PickAxe->bCastDynamicShadow = false;
-	FP_PickAxe->CastShadow = false;
+	FP_WieldedItem = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
+	FP_WieldedItem->SetOnlyOwnerSee(true);			// only the owning player will see this mesh
+	FP_WieldedItem->bCastDynamicShadow = false;
+	FP_WieldedItem->CastShadow = false;
 	// FP_Gun->SetupAttachment(Mesh1P, TEXT("GripPoint"));
-	FP_PickAxe->SetupAttachment(RootComponent);
+	FP_WieldedItem->SetupAttachment(RootComponent);
 
 	FP_MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
-	FP_MuzzleLocation->SetupAttachment(FP_PickAxe);
+	FP_MuzzleLocation->SetupAttachment(FP_WieldedItem);
 	FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 48.4f, -10.6f));
 
 	// Default offset from the character location for projectiles to spawn
@@ -100,7 +100,7 @@ void AMineCraftUnrealCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	//Attach gun mesh component to Skeleton, doing it here because the skeleton is not yet created in the constructor
-	FP_PickAxe->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
+	FP_WieldedItem->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
 
 	// Show or hide the two versions of the gun based on whether or not we're using motion controllers.
 	if (bUsingMotionControllers)
@@ -338,6 +338,11 @@ void AMineCraftUnrealCharacter::CheckForBlocks()
 
 	ABlock* PotentialBlock = Cast<ABlock>(LineTraceHit.GetActor());
 
+	if (PotentialBlock != CurrentBlock && CurrentBlock != nullptr)
+	{
+		CurrentBlock->ResetBlock();
+	}
+
 	if (PotentialBlock == NULL)
 	{
 		CurrentBlock = nullptr;
@@ -345,6 +350,10 @@ void AMineCraftUnrealCharacter::CheckForBlocks()
 	}
 	else
 	{
+		if (CurrentBlock != nullptr && !bIsBreaking)
+		{
+			CurrentBlock->ResetBlock();
+		}
 		CurrentBlock = PotentialBlock;
 	}
 

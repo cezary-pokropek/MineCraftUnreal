@@ -14,14 +14,6 @@ class AMineCraftUnrealCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
-	/** Pawn mesh: 1st person view (arms; seen only by self) */
-	UPROPERTY(VisibleDefaultsOnly, Category=Mesh)
-	class USkeletalMeshComponent* Mesh1P;
-
-	/** Gun mesh: 1st person view (seen only by self) */
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	class USkeletalMeshComponent* FP_PickAxe;
-
 	/** Location on gun mesh where projectiles should spawn. */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 	class USceneComponent* FP_MuzzleLocation;
@@ -50,6 +42,14 @@ public:
 	AMineCraftUnrealCharacter();
 
 	virtual void Tick(float DeltaTime) override;
+
+	/** Pawn mesh: 1st person view (arms; seen only by self) */
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+	class USkeletalMeshComponent* Mesh1P;
+
+	/** Gun mesh: 1st person view (seen only by self) */
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+	class USkeletalMeshComponent* FP_WieldedItem;
 
 protected:
 	virtual void BeginPlay();
@@ -82,6 +82,12 @@ public:
 	/** Whether to use motion controller location for aiming. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	uint32 bUsingMotionControllers : 1;
+
+	/*The type of tool and tool material of the currently wielded item*/
+
+	uint8 ToolType;
+	uint8 MaterialType;
+
 
 protected:
 	
@@ -162,7 +168,6 @@ private:
 	/*Timer Handles*/
 	FTimerHandle BlockBreakingHandle;
 	FTimerHandle HitAnimHandle;
-
 
 public:
 	/** Returns Mesh1P subobject **/
