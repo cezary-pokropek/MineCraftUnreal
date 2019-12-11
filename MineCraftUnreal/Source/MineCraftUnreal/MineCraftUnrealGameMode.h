@@ -6,6 +6,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "MineCraftUnrealGameMode.generated.h"
 
+
 UENUM(BlueprintType)
 enum class EHUDState : uint8
 {
@@ -39,7 +40,6 @@ public:
 	/*Applies a hud to the screen, returns true if succesful, false otherwise*/
 	bool ApplyHUD(TSubclassOf<class UUserWidget> WidgetToApply, bool ShowMouseCursor, bool EnableClickEvents);
 
-
 protected:
 
 	/*The current hudstate*/
@@ -62,6 +62,3 @@ protected:
 
 
 };
-
-
-
