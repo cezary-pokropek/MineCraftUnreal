@@ -27,6 +27,8 @@ AWieldable::AWieldable()
 	MaterialType = EMaterial::None;
 	ToolType = ETool::Unarmed;
 
+	bIsActive = true;
+
 }
 
 // Called when the game starts or when spawned
@@ -47,6 +49,17 @@ void AWieldable::Tick(float DeltaTime)
 
 }
 
+void AWieldable::OnPickedUp()
+{
+	WieldableMesh->SetVisibility(false);
+	bIsActive = false;
+}
+
+void AWieldable::OnUsed()
+{
+	Destroy();
+}
+
 void AWieldable::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 
@@ -54,10 +67,9 @@ void AWieldable::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor
 	{
 		AMineCraftUnrealCharacter* Character = Cast<AMineCraftUnrealCharacter>(UGameplayStatics::GetPlayerCharacter(this, 0));
 		Character->FP_WieldedItem->SetSkeletalMesh(WieldableMesh->SkeletalMesh);
-		Character->MaterialType = (uint8)MaterialType;
-		Character->ToolType = (uint8)ToolType;
+		Character->AddItemToInventory(this);
 
-		Destroy();
+		OnPickedUp();
 
 	}
 }

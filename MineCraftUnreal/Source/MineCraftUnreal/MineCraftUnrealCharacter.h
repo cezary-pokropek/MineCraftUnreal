@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Block.h"
+#include "Wieldable.h"
+#include "Engine/Texture2D.h"
 #include "MineCraftUnrealCharacter.generated.h"
 
 class UInputComponent;
@@ -83,8 +85,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	uint32 bUsingMotionControllers : 1;
 
-	/*The type of tool and tool material of the currently wielded item*/
+	/*Get the current inventory slot for the hud*/
+	UFUNCTION(BlueprintPure, Category = HUD)
+	int32 GetCurrentInventorySlot();
 
+	/*Adds an item to our invetory*/
+	UFUNCTION(BlueprintCallable, Category = Inventory)
+	bool AddItemToInventory(AWieldable* Item);
+
+	/*Gets the thumbnail for a given item*/
+	UFUNCTION(BlueprintPure, Category = Inventory)
+	UTexture2D* GetThumbnailAtInventorySlot(uint8 Slot);
+
+	/*The type of tool and tool material of the currently wielded item*/
 	uint8 ToolType;
 	uint8 MaterialType;
 
@@ -143,6 +156,16 @@ protected:
 
 private:
 
+	/*Number of inventory slots*/
+	const int32 NUM_OF_INVENTORY_SLOTS = 10;
+
+	/*Current inv slot*/
+	int32 CurrentInventorySlot = 0;
+
+	/*Increment and decrement inventory slot*/
+	void MoveUpInventorySlot();
+	void MoveDownInventorySlot();
+
 	/*True if player is breaking, false otherwise*/
 	bool bIsBreaking;
 
@@ -168,6 +191,9 @@ private:
 	/*Timer Handles*/
 	FTimerHandle BlockBreakingHandle;
 	FTimerHandle HitAnimHandle;
+
+	UPROPERTY(EditAnywhere)
+	TArray<AWieldable*> Inventory;
 
 public:
 	/** Returns Mesh1P subobject **/

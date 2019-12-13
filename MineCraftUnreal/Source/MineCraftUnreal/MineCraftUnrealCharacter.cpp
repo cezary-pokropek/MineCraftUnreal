@@ -127,6 +127,12 @@ void AMineCraftUnrealCharacter::SetupPlayerInputComponent(class UInputComponent*
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
+	// Mouse wheel inventory events
+
+	PlayerInputComponent->BindAction("InventoryUp", IE_Pressed, this, &AMineCraftUnrealCharacter::MoveUpInventorySlot);
+	PlayerInputComponent->BindAction("InventoryDown", IE_Pressed, this, &AMineCraftUnrealCharacter::MoveDownInventorySlot);
+
+
 	// Bind fire event
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AMineCraftUnrealCharacter::OnFire);
 
@@ -152,6 +158,45 @@ void AMineCraftUnrealCharacter::SetupPlayerInputComponent(class UInputComponent*
 	PlayerInputComponent->BindAxis("TurnRate", this, &AMineCraftUnrealCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AMineCraftUnrealCharacter::LookUpAtRate);
+}
+
+int32 AMineCraftUnrealCharacter::GetCurrentInventorySlot()
+{
+	return CurrentInventorySlot;
+}
+
+bool AMineCraftUnrealCharacter::AddItemToInventory(AWieldable* Item)
+{
+	if (Item != NULL)
+	{
+		const int32 AvailableSlot = Inventory.Find(nullptr);
+
+		if (AvailableSlot != INDEX_NONE)
+		{
+			Inventory[AvailableSlot] = Item;
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+
+	}
+
+	return false;
+
+}
+
+UTexture2D* AMineCraftUnrealCharacter::GetThumbnailAtInventorySlot(uint8 Slot)
+{
+	if (Inventory[Slot] != NULL)
+	{
+		return Inventory[Slot]->PickupThumbnail;
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
 void AMineCraftUnrealCharacter::OnFire()
@@ -279,6 +324,21 @@ bool AMineCraftUnrealCharacter::EnableTouchscreenMovement(class UInputComponent*
 	}
 	
 	return false;
+}
+
+void AMineCraftUnrealCharacter::MoveUpInventorySlot()
+{
+	CurrentInventorySlot = FMath::Abs((CurrentInventorySlot + 1) % NUM_OF_INVENTORY_SLOTS);
+}
+
+void AMineCraftUnrealCharacter::MoveDownInventorySlot()
+{
+	if (CurrentInventorySlot == 0)
+	{
+		CurrentInventorySlot = 9;
+		return;
+	}
+	CurrentInventorySlot = FMath::Abs((CurrentInventorySlot - 1) % NUM_OF_INVENTORY_SLOTS);
 }
 
 void AMineCraftUnrealCharacter::OnHit()

@@ -54,11 +54,20 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Material")
 	EMaterial MaterialType;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "SkeletalMesh")
+	UPROPERTY(EditAnywhere, Category = "SkeletalMesh")
 	USkeletalMeshComponent* WieldableMesh;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	UPROPERTY(EditAnywhere, Category = "PrimitiveComponent")
 	UPrimitiveComponent* PickupTrigger;
+
+	UPROPERTY(EditDefaultsOnly, Category = "PrimitiveComponent")
+	UTexture2D* PickupThumbnail;
+
+	bool bIsActive;
+
+	void OnPickedUp();
+
+	void OnUsed();
 
 	// declare overlap begin function
 	UFUNCTION()
