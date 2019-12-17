@@ -49,10 +49,10 @@ void AWieldable::Tick(float DeltaTime)
 
 }
 
-void AWieldable::OnPickedUp()
+void AWieldable::Hide(bool bVis)
 {
-	WieldableMesh->SetVisibility(false);
-	bIsActive = false;
+	WieldableMesh->SetVisibility(!bVis);
+	bIsActive = !bVis;
 }
 
 void AWieldable::OnUsed()
@@ -69,7 +69,7 @@ void AWieldable::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor
 		Character->FP_WieldedItem->SetSkeletalMesh(WieldableMesh->SkeletalMesh);
 		Character->AddItemToInventory(this);
 
-		OnPickedUp();
+		Hide(true);
 
 	}
 }

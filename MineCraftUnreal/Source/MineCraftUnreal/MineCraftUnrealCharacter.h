@@ -160,7 +160,16 @@ private:
 	const int32 NUM_OF_INVENTORY_SLOTS = 10;
 
 	/*Current inv slot*/
-	int32 CurrentInventorySlot = 0;
+	int32 CurrentInventorySlot;
+
+	/*Updates the wielded item*/
+	void UpdateWieldedItem();
+
+	/*Gets the current wielded item*/
+	AWieldable* GetCurrentlyWieldedItem();
+
+	/*Throws the currently wielded item*/
+	void Throw();
 
 	/*Increment and decrement inventory slot*/
 	void MoveUpInventorySlot();
@@ -169,7 +178,7 @@ private:
 	/*True if player is breaking, false otherwise*/
 	bool bIsBreaking;
 
-	/*Called whenhitting a tool*/
+	/*Called when hitting a tool*/
 	void OnHit();
 	void EndHit();
 

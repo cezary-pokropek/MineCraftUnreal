@@ -48,24 +48,24 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere, Category = "Tool")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tool")
 	ETool ToolType;
 
-	UPROPERTY(EditAnywhere, Category = "Material")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Material")
 	EMaterial MaterialType;
 
-	UPROPERTY(EditAnywhere, Category = "SkeletalMesh")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkeletalMesh")
 	USkeletalMeshComponent* WieldableMesh;
 
-	UPROPERTY(EditAnywhere, Category = "PrimitiveComponent")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PrimitiveComponent")
 	UPrimitiveComponent* PickupTrigger;
 
-	UPROPERTY(EditDefaultsOnly, Category = "PrimitiveComponent")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PrimitiveComponent")
 	UTexture2D* PickupThumbnail;
 
 	bool bIsActive;
 
-	void OnPickedUp();
+	void Hide(bool bVis);
 
 	void OnUsed();
 

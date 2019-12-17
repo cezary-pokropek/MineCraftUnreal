@@ -128,10 +128,11 @@ void AMineCraftUnrealCharacter::SetupPlayerInputComponent(class UInputComponent*
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	// Mouse wheel inventory events
-
 	PlayerInputComponent->BindAction("InventoryUp", IE_Pressed, this, &AMineCraftUnrealCharacter::MoveUpInventorySlot);
 	PlayerInputComponent->BindAction("InventoryDown", IE_Pressed, this, &AMineCraftUnrealCharacter::MoveDownInventorySlot);
 
+	// Throw items event
+	PlayerInputComponent->BindAction("Throw", IE_Pressed, this, &AMineCraftUnrealCharacter::Throw);
 
 	// Bind fire event
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AMineCraftUnrealCharacter::OnFire);
@@ -326,9 +327,58 @@ bool AMineCraftUnrealCharacter::EnableTouchscreenMovement(class UInputComponent*
 	return false;
 }
 
+void AMineCraftUnrealCharacter::UpdateWieldedItem()
+{
+	Inventory[CurrentInventorySlot] != NULL ? FP_WieldedItem->SetSkeletalMesh(Inventory[CurrentInventorySlot]->WieldableMesh->SkeletalMesh) : FP_WieldedItem->SetSkeletalMesh(NULL);
+}
+
+AWieldable* AMineCraftUnrealCharacter::GetCurrentlyWieldedItem()
+{
+	return Inventory[CurrentInventorySlot] != NULL ? Inventory[CurrentInventorySlot] : nullptr;
+}
+
+void AMineCraftUnrealCharacter::Throw()
+{
+	//Get the currently wielded item
+	AWieldable* ItemToThrow = GetCurrentlyWieldedItem();
+
+	//Raycast to find drop location
+	FHitResult LinetraceHit;
+
+	FVector StartTrace = FirstPersonCameraComponent->GetComponentLocation();
+	FVector EndTrace = (FirstPersonCameraComponent->GetForwardVector() * Reach) + StartTrace;
+
+	FCollisionQueryParams CQP;
+	CQP.AddIgnoredActor(this);
+
+	GetWorld()->LineTraceSingleByChannel(LinetraceHit, StartTrace, EndTrace, ECollisionChannel::ECC_WorldDynamic, CQP);
+
+	FVector DropLocation = EndTrace;
+
+	if(LinetraceHit.GetActor() != NULL)
+	{
+		DropLocation = (LinetraceHit.ImpactPoint + 20.f);
+	}
+
+	if (ItemToThrow != NULL)
+	{
+		UWorld* const World = GetWorld();
+		if (World != NULL)
+		{
+			ItemToThrow->SetActorLocationAndRotation(DropLocation, FRotator::ZeroRotator);
+			ItemToThrow->Hide(false);
+			Inventory[CurrentInventorySlot] = NULL;
+		}
+
+	}
+	UpdateWieldedItem();
+
+}
+
 void AMineCraftUnrealCharacter::MoveUpInventorySlot()
 {
 	CurrentInventorySlot = FMath::Abs((CurrentInventorySlot + 1) % NUM_OF_INVENTORY_SLOTS);
+	UpdateWieldedItem();
 }
 
 void AMineCraftUnrealCharacter::MoveDownInventorySlot()
@@ -336,9 +386,12 @@ void AMineCraftUnrealCharacter::MoveDownInventorySlot()
 	if (CurrentInventorySlot == 0)
 	{
 		CurrentInventorySlot = 9;
+		UpdateWieldedItem();
 		return;
 	}
 	CurrentInventorySlot = FMath::Abs((CurrentInventorySlot - 1) % NUM_OF_INVENTORY_SLOTS);
+	UpdateWieldedItem();
+
 }
 
 void AMineCraftUnrealCharacter::OnHit()
